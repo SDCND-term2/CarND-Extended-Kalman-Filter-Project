@@ -30,6 +30,17 @@ FusionEKF::FusionEKF() {
   R_radar_ << 0.09, 0, 0,
         0, 0.0009, 0,
         0, 0, 0.09;
+  laser << 
+  H_laser << 1, 0, 0, 0,
+             0, 1, 0, 0;
+
+  ekf_.F_ = // 4x4 matrix (state transition)
+
+  ekf_.P_ = // 4x4 matrix
+
+  noise_ax = 9;// provided in the quiz as 9 in section 13 of lesson 5
+  noise_ay = 9;// provided in the quiz as 9
+
 
   /**
   TODO:
@@ -67,11 +78,17 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
       */
+      double ro = measurement_pack.raw_measurements_(0);
+      double theta = measurement_pack.raw_measurements_(1);
+      ekf_.x_(0) = ro*cos(theta);
+      ekf_.x_(1) = ro*sin(theta);
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       /**
       Initialize state.
       */
+      ekf_.x_(0) = measurement_pack.raw_measurements_(0);
+      ekf_.x_(1) = measurement_pack.raw_measurements_(1);
     }
 
     // done initializing, no need to predict or update
