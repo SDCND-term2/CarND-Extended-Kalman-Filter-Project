@@ -31,7 +31,7 @@ FusionEKF::FusionEKF() {
         0, 0.0009, 0,
         0, 0, 0.09;
 
-  H_laser << 1, 0, 0, 0,
+  H_laser_ << 1, 0, 0, 0,
              0, 1, 0, 0;
 
   ekf_.F_ = MatrixXd(4,4); // 4x4 matrix (state transition)
@@ -89,11 +89,11 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       ekf_.x_(1) = measurement_pack.raw_measurements_(1);
     }
 
-    ekf_.F_ = 1,0,0,0,
+    ekf_.F_ << 1,0,0,0,
              0,1,0,0,
              0,0,1,0,
              0,0,0,1;
-    ekf_.previous_timestamp_ = measurement_pack.timestamp_;
+    previous_timestamp_ = measurement_pack.timestamp_;
 
     // done initializing, no need to predict or update
     is_initialized_ = true;
@@ -119,8 +119,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   float dt_4 = dt_3 * dt;
 
   // Modify the F matrix so that the time is integrated Section 8 of Lesson 5
-  edf_.F_(0,2) = dt;
-  edf_.F_(1,3) = dt;
+  ekf_.F_(0,2) = dt;
+  ekf_.F_(1,3) = dt;
 
   // set the process covariance matrix Q Section 9 of Lesson 5
   ekf_.Q_ = MatrixXd(4,4);
@@ -145,9 +145,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // Radar updates
     // set ekf_.H_ by setting to Hj which is the calculated the jacbian
     // set ekf_.R_ by just using R_rader_
-    Tools tools = new Tools();
+    Tools tools;
     ekf_.H_ = tools.CalculateJacobian(ekf_.x_);
-    ekf_.R_ = R_rader_;
+    ekf_.R_ = R_radar_;
     
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);
 
