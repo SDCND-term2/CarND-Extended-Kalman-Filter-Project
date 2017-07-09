@@ -1,4 +1,7 @@
+#include <iostream>
 #include "kalman_filter.h"
+
+using namespace std;
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -41,6 +44,7 @@ void KalmanFilter::Update(const VectorXd &z) {
   MatrixXd S = H_ * P_ * Ht + R_;
   MatrixXd Si = S.inverse();
   MatrixXd K = P_ * Ht * Si;
+
 
   // new state
   x_ = x_ + (K * y);
@@ -86,7 +90,8 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
        0, 1, 0, 0,
        0, 0, 1, 0,
        0, 0, 0, 1;
-  x_ = x_ + (K * Y);
-  P_ = (I - K + H_) * P_;
 
+  x_ = x_ + (K * Y);
+
+  P_ = (I - K * H_) * P_;
 }
