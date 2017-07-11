@@ -78,6 +78,10 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   VectorXd Y = z - z_pred;
 
+  // angle normalization
+  while (Y(1)> M_PI) Y(1)-=2.*M_PI;
+  while (Y(1)<-M_PI) Y(1)+=2.*M_PI;
+
   // In section 7 of lesson 5
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
